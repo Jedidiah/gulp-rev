@@ -1,9 +1,9 @@
 {
-  "name": "gulp-rev-rails",
+  "name": "gulp-rev-manifest-rails",
   "version": "0.0.1",
   "description": "Builds a rev manifest file that is compatible with Rails. Forked from the manifest function of gulp-rev",
   "license": "MIT",
-  "repository": "jedidiah/gulp-rev-ruby",
+  "repository": "jedidiah/gulp-rev-manifest-rails",
   "author": {
     "name": "Jedidiah Broadbent",
     "email": "hello@jedidiah.eu",
