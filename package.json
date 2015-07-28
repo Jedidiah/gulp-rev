@@ -1,23 +1,23 @@
 {
-  "name": "gulp-rev",
-  "version": "5.1.0",
-  "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-d41d8cd98f.css",
+  "name": "gulp-rev-rails",
+  "version": "0.0.1",
+  "description": "Builds a rev manifest file that is compatible with Rails. Forked from the manifest function of gulp-rev",
   "license": "MIT",
-  "repository": "sindresorhus/gulp-rev",
+  "repository": "jedidiah/gulp-rev-ruby",
   "author": {
-    "name": "Sindre Sorhus",
-    "email": "sindresorhus@gmail.com",
-    "url": "sindresorhus.com"
+    "name": "Jedidiah Broadbent",
+    "email": "hello@jedidiah.eu",
+    "url": "jedidiah.eu"
   },
   "maintainers": [
     {
-      "name": "Justin Hileman",
-      "email": "justin@justinhileman.info",
-      "url": "justinhileman.info"
+      "name": "Jedidiah Broadbent",
+      "email": "hello@jedidiah.eu",
+      "url": "jedidiah.eu"
     }
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.12.0"
   },
   "scripts": {
     "test": "mocha"
@@ -43,8 +43,6 @@
   "dependencies": {
     "gulp-util": "^3.0.0",
     "object-assign": "^2.0.0",
-    "rev-hash": "^1.0.0",
-    "rev-path": "^1.0.0",
     "sort-keys": "^1.0.0",
     "through2": "^0.6.1",
     "vinyl-file": "^1.1.0"

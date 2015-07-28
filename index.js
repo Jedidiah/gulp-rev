@@ -4,8 +4,6 @@ var gutil = require('gulp-util');
 var through = require('through2');
 var objectAssign = require('object-assign');
 var file = require('vinyl-file');
-var revHash = require('rev-hash');
-var revPath = require('rev-path');
 var sortKeys = require('sort-keys');
 
 function relPath(base, filePath) {
@@ -39,84 +37,20 @@ function getManifestFile(opts, cb) {
 	});
 }
 
-function transformFilename(file) {
-	// save the old path for later
-	file.revOrigPath = file.path;
-	file.revOrigBase = file.base;
-	file.revHash = revHash(file.contents);
-	file.path = revPath(file.path, file.revHash);
-}
-
-var plugin = function () {
-	var sourcemaps = [];
-	var pathMap = {};
-
-	return through.obj(function (file, enc, cb) {
-		if (file.isNull()) {
-			cb(null, file);
-			return;
-		}
-
-		if (file.isStream()) {
-			cb(new gutil.PluginError('gulp-rev', 'Streaming not supported'));
-			return;
-		}
-
-		// This is a sourcemap, hold until the end
-		if (path.extname(file.path) === '.map') {
-			sourcemaps.push(file);
-			cb();
-			return;
-		}
-
-		var oldPath = file.path;
-		transformFilename(file);
-		pathMap[oldPath] = file.revHash;
-		cb(null, file);
-
-	}, function (cb) {
-		sourcemaps.forEach(function (file) {
-			var reverseFilename;
-
-			// attempt to parse the sourcemap's JSON to get the reverse filename
-			try {
-				reverseFilename = JSON.parse(file.contents.toString()).file;
-			} catch (err) {}
-
-			if (!reverseFilename) {
-				reverseFilename = path.relative(path.dirname(file.path), path.basename(file.path, '.map'));
-			}
-
-			if (pathMap[reverseFilename]) {
-				// save the old path for later
-				file.revOrigPath = file.path;
-				file.revOrigBase = file.base;
-
-				var hash = pathMap[reverseFilename];
-				file.path = revPath(file.path.replace(/\.map$/, ''), hash) + '.map';
-			} else {
-				transformFilename(file);
-			}
-
-			this.push(file);
-		}, this);
-
-		cb();
-	});
-};
-
-plugin.manifest = function (pth, opts) {
+var manifest = function (pth, opts) {
 	if (typeof pth === 'string') {
 		pth = {path: pth};
 	}
 
 	opts = objectAssign({
-		path: 'rev-manifest.json',
+		path: 'manifest.json',
 		merge: false
 	}, opts, pth);
 
 	var firstFileBase = null;
 	var manifest = {};
+	manifest.files = {};
+	manifest.assets = {};
 
 	return through.obj(function (file, enc, cb) {
 		// ignore all non-rev'd files
@@ -130,7 +64,13 @@ plugin.manifest = function (pth, opts) {
 		var revisionedFile = relPath(firstFileBase, file.path);
 		var originalFile = path.join(path.dirname(revisionedFile), path.basename(file.revOrigPath)).replace(/\\/g, '/');
 
-		manifest[originalFile] = revisionedFile;
+		manifest.assets[originalFile] = revisionedFile;
+		manifest.files[revisionedFile] = {
+			"logical_path": originalFile,
+			"mtime": file.stat.mtime,
+			"size": file.contents.length,
+			"digest": file.revHash
+		};
 
 		cb();
 	}, function (cb) {
@@ -163,4 +103,4 @@ plugin.manifest = function (pth, opts) {
 	});
 };
 
-module.exports = plugin;
+module.exports = manifest;
